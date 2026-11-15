@@ -91,4 +91,4 @@ hasNext    = page < totalPages,  hasPrev = page > 1
 - 사용 도구: Claude Code (Anthropic, Claude Opus 5.5)
 - AI가 한 일: 원본 코드 분석과 문제점 찾기, `server.js`·`index.html` 수정, API 테스트(`test/api.test.js`) 작성, Playwright로 브라우저 동작 확인과 캡처, README·보고서 초안 작성
 - 자동으로 검증한 내용: `npm test` 37개 통과, 브라우저에서 디바운스 요청 수, 느린 네트워크(1.5초)에서의 요청 취소, 오래된 응답 무시, 새로고침·뒤로 가기 복원 (자세한 결과는 [보고서](docs/REPORT.md))
-- 직접 검증한 내용: [보고서 7절](docs/REPORT.md#7-ai-활용-및-직접-검증)에 기록
+- 직접 검증한 내용: [보고서 9절](docs/REPORT.md#9-ai-활용-및-직접-검증)에 기록
