@@ -42,6 +42,14 @@
 | 2-8 | `sort=__proto__`, `constructor`, `hasOwnProperty`, `toString`, `valueOf` | 상속 속성 차단 → latest | 모두 200, `meta.sort=latest` (원본: 500 또는 우회) | 00, npm test |
 | 2-9 | 화면 URL `?sort=__proto__&page=-1&search=Redis` | 정렬 latest, 1페이지로 보정 | URL이 `?search=Redis&sort=latest&page=1`로 교체, 선택 상자 "최신순" | 07-bad-url-normalized |
 
+**캡처**
+
+![조회순 정렬 (동점 994 → 893)](screenshots/02-sort-views.png)
+
+![검색 결과 없음](screenshots/06-no-result.png)
+
+![잘못된 URL 보정](screenshots/07-bad-url-normalized.png)
+
 **수정 내용**
 
 - `server.js:80` `SORT_WHITELIST`를 `Object.create(null)`로 만들어 프로토타입이 없게 하고, `server.js:107` `parseSort()`에서 `Object.hasOwn(SORT_WHITELIST, key)`일 때만 허용합니다. 나머지는 모두 `latest`입니다.
@@ -87,6 +95,16 @@
 | 3-16 | 화면: 커서 탭 | 정렬 선택 비활성화 + 기준 명시 | 선택 상자 disabled, "커서 모드: 정렬은 ID 내림차순(id DESC) 고정" 표시 | 08, 09 |
 | 3-17 | `cursor=abc`, `-1`, `0` / `limit=1000` | 첫 페이지 / 상한 50 | 1000, 999, 998 / limit=50, order="id DESC" | npm test |
 
+**캡처**
+
+![검색 후 3페이지](screenshots/04-search-page3.png)
+
+![정렬 변경 시 1페이지로 초기화](screenshots/04b-sort-change-reset-page1.png)
+
+![커서 끝까지 → 더 보기 비활성화](screenshots/08-cursor-end-hasNext-false.png)
+
+![커서 모드 검색어 변경 → 초기화, 정렬 id DESC 고정](screenshots/09-cursor-search-reset.png)
+
 **수정 내용**
 
 - `server.js:99` `parsePositiveInt()`: `/^\d+$/`에 맞는 양의 정수만 인정하고 나머지는 기본값을 씁니다(`parseInt` 대신).
@@ -117,6 +135,16 @@
 | 4-4 | AbortError 처리 | 취소를 에러로 보지 않음 | 에러 화면 없이 로그에 [취소]로만 표시 | 10, 11 |
 | 4-5 | **오래된 응답 덮어쓰기 방지**: `abort()`를 일부러 무력화하고 Redis 응답만 3초 더 늦게 도착시킴 | 늦게 온 Redis 응답은 무시, ElasticSearch 결과 유지 | 로그 "#2 [무시] …search=Redis", "전송 2 · 반영 1 · 무시 1", 목록 전부 ElasticSearch | 12-stale-response-ignored |
 
+**캡처**
+
+![디바운스: 8글자 입력 → 요청 1회](screenshots/03-debounce.png)
+
+![느린 네트워크: 이전 요청 2개 취소, 마지막 요청 대기](screenshots/10-slow-abort-pending.png)
+
+![느린 네트워크: 최종 결과](screenshots/11-slow-abort-final.png)
+
+![늦게 도착한 응답 무시](screenshots/12-stale-response-ignored.png)
+
 **수정 내용**
 
 - 디바운스(`index.html:665`)는 원본 구조를 유지하고 다음을 보완했습니다.
@@ -141,6 +169,12 @@
 | 5-3 | 5-2에서 **뒤로 가기 2번** | 이전 상태(최신순 3페이지)로 복원 | URL `?search=Redis&sort=latest&page=3`, 정렬 "최신순", "총 83건 · 3 / 9 페이지" | 05b-popstate-back |
 | 5-4 | 뒤로 가기 3번 → 앞으로 가기 1번 (오래된순 4p → 인덱스 검색 1p → 2p 순으로 이동한 뒤) | 각 단계의 URL·입력창·정렬·페이지 일치 | 모든 단계 일치 (검색어 있음/없음까지 입력창에 반영) | (브라우저 자동 테스트) |
 | 5-5 | 잘못된 URL `?sort=constructor&page=abc`, `?sort=views&page=9999` | 각각 latest·1페이지 / views·100페이지로 보정 | URL이 `?sort=latest&page=1`, `?sort=views&page=100`으로 교체 | 07-bad-url-normalized |
+
+**캡처**
+
+![새로고침 후 복원](screenshots/05a-reload-restored.png)
+
+![뒤로 가기 후 복원](screenshots/05b-popstate-back.png)
 
 **수정 내용**
 
@@ -169,6 +203,9 @@
 | `/api/posts/cursor?search=Redis` | 0.38 ~ 0.39ms |
 
 관찰: 인메모리 배열에서는 매 요청마다 전체를 `filter`/`sort`하므로 page=1과 page=100의 차이가 거의 없습니다. 검색이나 조회순 정렬이 있을 때 조금 더 걸립니다. 실제 DB에서는 OFFSET이 클수록 건너뛰는 행이 늘어나 오프셋이 느려지지만, 이 실습 환경에서는 그 차이가 드러나지 않습니다.
+
+![npm test 37개 통과](screenshots/13-npm-test.png)
+
 
 ---
 
