@@ -467,6 +467,7 @@
     stats.sent++;
     renderStats();
     setLoading(true);
+    $('resultInfo').textContent = `불러오는 중... (검색어: ${req.search || '없음'})`;
 
     const t0 = performance.now();
     try {
